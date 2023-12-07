@@ -1,0 +1,22 @@
+<!-- circle_app/templates/circle_app/home.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adjacency List</title>
+</head>
+<body>
+    <h1>Enter an Adjacency List</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if adjacency_list %}
+        <h2>Your Adjacency List:</h2>
+        <pre>{{ adjacency_list }}</pre>
+    {% endif %}
+
+    <a href="{% url 'temp' %}" class="btn btn-primary">View the rendered list</a>
+</body>
+</html>

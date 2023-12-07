@@ -1,0 +1,25 @@
+<!-- circle_app/templates/circle_app/temp_page.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Temporary Page</title>
+</head>
+<body>
+    <h1>Deletion Page</h1>
+    
+    <h2>Delete these</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Delete These</button>
+    </form>
+
+    {% if delete_form %}
+        <h3>Nodes to be deleted:</h3>
+        <pre>{{ delete_form }}</pre>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="btn btn-primary">Go Back to Home</a>
+    <a href="{% url 'temp' %}" class="btn btn-primary">View the rendered list</a>
+</body>
+</html>

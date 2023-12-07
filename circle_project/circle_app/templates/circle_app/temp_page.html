@@ -1,0 +1,30 @@
+<!-- circle_app/templates/circle_app/temp_page.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Temporary Page</title>
+</head>
+<body>
+    <h1>Addition Page</h1>
+    
+    <h2>Add Child Adjacency List</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Child Adjacency List</button>
+    </form>
+
+    {% if child_adjacency_list %}
+        <h3>Child Adjacency List:</h3>
+        <pre>{{ child_adjacency_list }}</pre>
+    {% endif %}
+
+    <h2>Parent Adjacency List:</h2>
+    <pre>{{ parent_adjacency_list }}</pre>
+
+    <a href="{% url 'home' %}" class="btn btn-primary">Go Back to Home</a>
+    <a href="{% url 'temp' %}" class="btn btn-primary">View the rendered list</a>
+    <a href="{% url 'del' %}" class="btn btn-primary">Delete</a>
+
+</body>
+</html>
