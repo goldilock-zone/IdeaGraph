@@ -1,6 +1,8 @@
 # circle_app/forms.py
 from django import forms
+from .models import Node
 
+adjacency_list_file = "circle_app/txtdb/adj_list.txt"
 class AdjacencyListForm(forms.Form):
     adjacency_list = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 40}))
 
@@ -15,3 +17,17 @@ class DeleteNodesForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Enter nodes to delete (comma-separated)'}),
         required=False  # You can set this to True if deletion is mandatory
     )
+
+class NodeForm(forms.ModelForm):
+    class Meta:
+        model = Node
+        fields = ['name', 'link']
+    
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        # Check if a node with the same name already exists in the database
+        if Node.objects.filter(name=name).exists():
+            return name  # Name exists, return it as is
+        else:
+            # Name does not exist, raise a validation warning
+            raise forms.ValidationError('Warning: This name does not exist in the database.')

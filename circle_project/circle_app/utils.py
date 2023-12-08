@@ -109,6 +109,7 @@ def delete_node_and_children(adj_list, node):
         if current_node in adj_list:
             for neighbor in adj_list[current_node]:
                 delete_recursive(neighbor)
+            print(adj_list[current_node])
             del adj_list[current_node]
 
     delete_recursive(node)

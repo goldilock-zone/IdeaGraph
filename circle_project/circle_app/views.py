@@ -3,6 +3,9 @@ from django.http import HttpResponse
 from .utils import visualize_adjacency_list, merge_adjacency_lists, extract_content_between_braces, ensure_empty_lists, delete_node_and_children
 from bs4 import BeautifulSoup
 from .forms import DeleteNodesForm
+from .models import Node
+from .forms import NodeForm
+from .update_nodes import update_database_with_nodes, check_node_consistency
 
 import os
 
@@ -24,6 +27,9 @@ def home(request):
                 file.write(str(adjacency_list))
             # You can use this structure to further explore and expand on the idea of Indie-Futurisms
             visualize_adjacency_list(ensure_empty_lists(adjacency_list))
+            update_database_with_nodes(output_file)
+            update_database_with_nodes(output_file)
+            check_node_consistency(output_file)
 
     else:
         form = AdjacencyListForm()
@@ -74,9 +80,25 @@ def display_html_file(request):
     # Append the <div> to the body of the HTML
     soup.body.append(div)
 
+    # Notes 
 
+    # Create a new <a> tag with an href attribute (replace '/your-link-url' with the desired URL)
+    link_tag_not = soup.new_tag('a', href="{% url 'node_list' %}")
 
-    print(soup)
+    # Create a new button element
+    new_button = soup.new_tag('button')
+    new_button.string = 'Notes'  # Set the button text
+    link_tag_not.append(new_button)
+
+    # Create a <div> for positioning the button
+    div = soup.new_tag('div', style='position: fixed; bottom: 100px; right: 10px;')
+
+    # Append the button to the <div>
+    div.append(link_tag_not)
+
+    # Append the <div> to the body of the HTML
+    soup.body.append(div)
+
 
     # Save the modified HTML back to a file
     with open('circle_app/templates/circle_app/temp.html', 'w', encoding='utf-8') as file:
@@ -107,6 +129,8 @@ def add_page(request):
             merged_list = ensure_empty_lists(merged_list)
             # You can use this structure to further explore and expand on the idea of Indie-Futurisms
             visualize_adjacency_list(merged_list)
+            update_database_with_nodes(output_file)
+            check_node_consistency(output_file)
             
         # Check if the form for deleting nodes is submitted
     
@@ -135,17 +159,41 @@ def del_page(request):
             
             nodes_to_delete = nodes_to_delete.split(',')
             for node in nodes_to_delete:
-                parent_list = delete_node_and_children(parent_list, node)
+                deled_list = delete_node_and_children(parent_list, node)
 
-            merged_list = ensure_empty_lists(parent_list)
+            merged_list = ensure_empty_lists(deled_list)
             # You can use this structure to further explore and expand on the idea of Indie-Futurisms
+
+            with open(output_file, "w") as file:
+                file.write(str(merged_list))
+
             visualize_adjacency_list(merged_list)
+            update_database_with_nodes(output_file)
+            check_node_consistency(output_file)
+            
 
 
         else:
             delete_form = DeleteNodesForm() 
 
     return render(request, 'circle_app/del.html', {'form': delete_form, 'delete_form': nodes_to_delete})
+
+
+def create_node(request):
+    nodes = Node.objects.all()
+    if request.method == 'POST':
+        form = NodeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return render(request, 'circle_app/node_list.html', {'nodes': nodes})  # Redirect to the node list page
+    else:
+        form = NodeForm()
+    
+    return render(request, 'circle_app/create_node.html', {'form': form})
+
+def node_list(request):
+    nodes = Node.objects.all()
+    return render(request, 'circle_app/node_list.html', {'nodes': nodes})
 
 # Create your views here.
 def circle_page(request):

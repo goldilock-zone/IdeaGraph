@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Node List</title>
+</head>
+<body>
+    <h1>Node List</h1>
+    <ul>
+        {% for node in nodes %}
+            <li>{{ node.name }} - <a href="{{ node.link }}" target="_blank">{{ node.link }}</a></li>
+        {% empty %}
+            <li>No nodes available.</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'create_node' %}">Create a New Note</a>
+    <a href="{% url 'home' %}" class="btn btn-primary">Go Back to Home</a>
+    <a href="{% url 'temp' %}" class="btn btn-primary">View the rendered list</a>
+
+</body>
+</html>
