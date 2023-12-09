@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .utils import visualize_adjacency_list, merge_adjacency_lists, extract_content_between_braces, ensure_empty_lists, delete_node_and_children
+from .utils import visualize_adjacency_list, merge_adjacency_lists, extract_content_between_braces, ensure_empty_lists, delete_node_and_children, export_links, export
 from bs4 import BeautifulSoup
 from .forms import DeleteNodesForm
 from .models import Node
@@ -24,7 +24,7 @@ def home(request):
             adjacency_list = extract_content_between_braces(form.cleaned_data['adjacency_list'])
             adjacency_list = eval(adjacency_list)
             with open(output_file, "w") as file:
-                file.write(str(adjacency_list))
+                file.write(str(ensure_empty_lists(adjacency_list)))
             # You can use this structure to further explore and expand on the idea of Indie-Futurisms
             visualize_adjacency_list(ensure_empty_lists(adjacency_list))
             update_database_with_nodes(output_file)
@@ -99,6 +99,25 @@ def display_html_file(request):
     # Append the <div> to the body of the HTML
     soup.body.append(div)
 
+    # Export 
+
+    # Create a new <a> tag with an href attribute (replace '/your-link-url' with the desired URL)
+    link_tag_exp = soup.new_tag('a', href="{% url 'export' %}")
+
+    # Create a new button element
+    new_button = soup.new_tag('button')
+    new_button.string = 'Export'  # Set the button text
+    link_tag_exp.append(new_button)
+
+    # Create a <div> for positioning the button
+    div = soup.new_tag('div', style='position: fixed; bottom: 150px; right: 10px;')
+
+    # Append the button to the <div>
+    div.append(link_tag_exp)
+
+    # Append the <div> to the body of the HTML
+    soup.body.append(div)
+
 
     # Save the modified HTML back to a file
     with open('circle_app/templates/circle_app/temp.html', 'w', encoding='utf-8') as file:
@@ -124,7 +143,7 @@ def add_page(request):
             merged_list = merge_adjacency_lists(parent_adjacency_list, child_adjacency_list, link_node, link_node)
             
             with open(output_file, "w") as file:
-                file.write(str(merged_list))
+                file.write(str(ensure_empty_lists(merged_list)))
 
             merged_list = ensure_empty_lists(merged_list)
             # You can use this structure to further explore and expand on the idea of Indie-Futurisms
@@ -165,7 +184,7 @@ def del_page(request):
             # You can use this structure to further explore and expand on the idea of Indie-Futurisms
 
             with open(output_file, "w") as file:
-                file.write(str(merged_list))
+                file.write(str(ensure_empty_lists(merged_list)))
 
             visualize_adjacency_list(merged_list)
             update_database_with_nodes(output_file)
@@ -194,6 +213,14 @@ def create_node(request):
 def node_list(request):
     nodes = Node.objects.all()
     return render(request, 'circle_app/node_list.html', {'nodes': nodes})
+
+
+def export_page(request):
+    # Add any logic or data you need for the export page
+    if request.method == 'POST':
+        export_links()
+        export()
+    return render(request, 'circle_app/export.html')
 
 # Create your views here.
 def circle_page(request):

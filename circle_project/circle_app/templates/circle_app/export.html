@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Page</title>
+</head>
+<body>
+    <h1>Export Page</h1>
+
+    <!-- Add a button for exporting -->
+    <form method="post" action="{% url 'export' %}">
+        {% csrf_token %}
+        <button type="submit">Export Data</button>
+    </form>
+    <a href="{% url 'home' %}" class="btn btn-primary">Go Back to Home</a>
+    <a href="{% url 'temp' %}" class="btn btn-primary">View the rendered list</a>
+
+
+    <!-- Add any additional content or styling as needed -->
+
+</body>
+</html>

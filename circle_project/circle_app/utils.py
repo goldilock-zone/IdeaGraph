@@ -1,5 +1,10 @@
 import networkx as nx
 from pyvis.network import Network
+import sqlite3
+import os
+from bs4 import BeautifulSoup
+import tkinter as tk
+from tkinter import filedialog
 # This file should be made object oriented
 
 def visualize_adjacency_list(adjacency_list):
@@ -119,5 +124,67 @@ def delete_node_and_children(adj_list, node):
 
     return adj_list
 
+def export_links():
+    # 1. Connect to the SQLite database (replace 'your_database.db' with your database file)
+    conn = sqlite3.connect('db.sqlite3')
 
+    # 2. Create a cursor object
+    cursor = conn.cursor()
+
+    # 3. Execute a SELECT query (replace 'your_table' with the name of your table)
+    cursor.execute('SELECT * FROM circle_app_node')
+    
+    # Start building the HTML table
+    html_table = '<table border="1">\n'
+    html_table += '<tr><th>Node</th><th>Link</th></tr>\n'
+    # 4. Fetch and display the data
+    for row in cursor.fetchall():
+        print(row[1:])
+        html_table += f'<tr><td>{row[1]}</td><td>{row[2]}</td></tr>\n'
+
+    html_table += '</table>'
+    
+    html_content = '<!DOCTYPE html>\n<html>\n<head>\n<title>Table Example</title>\n</head>\n<body>\n'
+    html_content += html_table
+    html_content += '</body>\n</html>'
+
+    with open('temp_export/output.html', 'w') as file:
+        file.write(html_content)
+
+    # 5. Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+def export():
+    # Step 1: Read the content of both HTML files
+    with open("circle_app/templates/circle_app/temp.html", "r") as left_file:
+        left_html = left_file.read()
+
+    left_soup = BeautifulSoup(left_html, 'html.parser')
+    for button in left_soup.find_all('button'):
+        button.extract()  # Remove the button element
+
+    left_html = str(left_soup)
+
+    with open("temp_export/output.html", "r") as right_file:
+        right_html = right_file.read()
+   # Step 2: Create a new HTML file
+    combined_html = '<div style="width: 75%; float: left;">' + left_html + '</div>'
+    combined_html += '<div style="width: 25%; float: right; overflow-y: auto; height: 100vh;">' + right_html + '</div>'
+
+    # Step 3: Open a dialog box to choose the folder
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    folder_path = filedialog.askdirectory(title="Select Folder to Save Combined HTML")
+
+    if folder_path:
+        # Step 4: Save the new HTML file to the selected folder
+        combined_file_path = os.path.join(folder_path, "combined.html")
+        with open(combined_file_path, "w") as combined_file:
+            combined_file.write(combined_html)
+        print(f"HTML files combined and saved as 'combined.html' in {folder_path}")
+
+     # Step 4: Save the new HTML file
+    print("HTML files combined and saved as 'combined.html'")
+  
 
