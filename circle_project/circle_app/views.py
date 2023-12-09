@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from .utils import visualize_adjacency_list, merge_adjacency_lists, extract_content_between_braces, ensure_empty_lists, delete_node_and_children, export_links, export
+from .utils import generate_prompt
 from bs4 import BeautifulSoup
 from .forms import DeleteNodesForm
 from .models import Node
-from .forms import NodeForm
+from .forms import NodeForm, PromptGeneratorForm
 from .update_nodes import update_database_with_nodes, check_node_consistency
 
 import os
@@ -221,6 +222,27 @@ def export_page(request):
         export_links()
         export()
     return render(request, 'circle_app/export.html')
+
+def prompt_generator(request):
+    generated_output = ""
+
+    if request.method == 'POST':
+        form = PromptGeneratorForm(request.POST)
+        if form.is_valid():
+            context_directives = form.cleaned_data['context_directives']
+            root_node = form.cleaned_data['root_node']
+            depth = form.cleaned_data['depth']
+            branching = form.cleaned_data['branching']
+
+            # Call a function to generate output based on form fields
+            generated_output = generate_prompt(context_directives, root_node, depth, branching)  # Replace with your actual function
+    else:
+        form = PromptGeneratorForm()
+
+    return render(request, 'circle_app/prompt_generator.html', {
+        'form': form,
+        'generated_output': generated_output,
+    })
 
 # Create your views here.
 def circle_page(request):

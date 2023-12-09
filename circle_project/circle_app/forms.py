@@ -18,6 +18,11 @@ class DeleteNodesForm(forms.Form):
         required=False  # You can set this to True if deletion is mandatory
     )
 
+class PromptGeneratorForm(forms.Form):
+    context_directives = forms.CharField(label='Context Directives', required=True)
+    root_node = forms.CharField(label='Root Node', required=True)
+    depth = forms.IntegerField(label='Depth', required=True, min_value=1)
+    branching = forms.IntegerField(label='Branching', required=True, min_value=1)
 class NodeForm(forms.ModelForm):
     class Meta:
         model = Node

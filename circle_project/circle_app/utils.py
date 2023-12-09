@@ -186,5 +186,36 @@ def export():
 
      # Step 4: Save the new HTML file
     print("HTML files combined and saved as 'combined.html'")
-  
 
+def generate_prompt(context_directives, root_node, depth, branching):
+    conn = sqlite3.connect('db.sqlite3')
+
+    # 2. Create a cursor object
+    cursor = conn.cursor()
+
+    # 3. Execute a SELECT query (replace 'your_table' with the name of your table)
+    cursor.execute('SELECT * FROM circle_app_node')
+
+    word_list = [node[1] for node in cursor.fetchall()]
+
+    prompt = (
+        "I want you to act like a 'Test Idea Mapper'\n"
+        "The 'Test Idea Mapper' excels in converting ideas into structured formats, now with an enhancement to provide Python adjacency lists. The process involves:\n"
+        "1. Grasping the central idea provided by the user.\n"
+        "2. Utilizing randomized branching, with intensity levels ranging from 1 (minimal) to 10 (maximal), as per user preference.\n"
+        "3. Following the user-defined depth for the idea tree's levels.\n"
+        "4. Systematically subdividing the idea at each level.\n"
+        "5. Returning just the python list. Any other information is just not needed.\n"
+        "\n"
+        "Only the output from point 5 should be printed.\n"
+        "\n"
+        f"Use the following directives for context: {context_directives}\n"
+        f"Create an idea mapper for the following: {root_node}\n"
+        f"This is the root node of the idea mapper, remember that you creating the idea map for this. Treat the context given with a lower weight, and give more importance to novelty while adding new nodes. "
+        f"Depth: {depth} Branching: {branching}\n"
+    )
+
+    cursor.close()
+    conn.close()
+
+    return prompt
