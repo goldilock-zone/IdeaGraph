@@ -5,6 +5,7 @@ import os
 from bs4 import BeautifulSoup
 import tkinter as tk
 from tkinter import filedialog
+from .update_nodes import update_database_with_nodes, check_node_consistency
 # This file should be made object oriented
 
 def visualize_adjacency_list(adjacency_list):
@@ -114,7 +115,6 @@ def delete_node_and_children(adj_list, node):
         if current_node in adj_list:
             for neighbor in adj_list[current_node]:
                 delete_recursive(neighbor)
-            print(adj_list[current_node])
             del adj_list[current_node]
 
     delete_recursive(node)
@@ -139,7 +139,6 @@ def export_links():
     html_table += '<tr><th>Node</th><th>Link</th></tr>\n'
     # 4. Fetch and display the data
     for row in cursor.fetchall():
-        print(row[1:])
         html_table += f'<tr><td>{row[1]}</td><td>{row[2]}</td></tr>\n'
 
     html_table += '</table>'
@@ -182,10 +181,6 @@ def export():
         combined_file_path = os.path.join(folder_path, "combined.html")
         with open(combined_file_path, "w") as combined_file:
             combined_file.write(combined_html)
-        print(f"HTML files combined and saved as 'combined.html' in {folder_path}")
-
-     # Step 4: Save the new HTML file
-    print("HTML files combined and saved as 'combined.html'")
 
 def generate_prompt(context_directives, root_node, depth, branching):
     conn = sqlite3.connect('db.sqlite3')
@@ -213,9 +208,36 @@ def generate_prompt(context_directives, root_node, depth, branching):
         f"Create an idea mapper for the following: {root_node}\n"
         f"This is the root node of the idea mapper, remember that you creating the idea map for this. Treat the context given with a lower weight, and give more importance to novelty while adding new nodes. "
         f"Depth: {depth} Branching: {branching}\n"
+        f"Make sure to following the format of the python adjacency list strictly, where the data structure is a dictionary, where the keys are the nodes, and their values are lists of nodes with which it is associated"
     )
 
     cursor.close()
     conn.close()
 
     return prompt
+
+def add_node(adj_list, new_node, connections):
+    """
+    Adds a new node and its connections to the adjacency list.
+
+    Parameters:
+    adj_list (dict): The existing adjacency list.
+    new_node (tuple): A tuple where the first element is the new node (str) 
+                      and the second element is a list of nodes (list) it is connected to.
+
+    Returns:
+    dict: The updated adjacency list.
+    """
+    node = new_node
+    if node not in adj_list:
+        adj_list[node] = connections
+    else:
+        adj_list[node].extend([conn for conn in connections if conn not in adj_list[node]])
+    
+    return adj_list
+
+def update_graph(adjacency_list, output_file):
+    visualize_adjacency_list(ensure_empty_lists(adjacency_list))
+    update_database_with_nodes(output_file)
+    check_node_consistency(output_file)
+

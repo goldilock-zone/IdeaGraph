@@ -1,6 +1,7 @@
 # circle_app/forms.py
 from django import forms
 from .models import Node
+from .update_nodes import update_database_with_nodes
 
 adjacency_list_file = "circle_app/txtdb/adj_list.txt"
 class AdjacencyListForm(forms.Form):
@@ -36,3 +37,17 @@ class NodeForm(forms.ModelForm):
         else:
             # Name does not exist, raise a validation warning
             raise forms.ValidationError('Warning: This name does not exist in the database.')
+
+
+class ConnectionForm(forms.ModelForm):
+    options = forms.ModelMultipleChoiceField(
+        queryset=Node.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    node = forms.CharField(max_length=255)
+
+    class Meta:
+        model = Node
+        fields = ['options', 'node']

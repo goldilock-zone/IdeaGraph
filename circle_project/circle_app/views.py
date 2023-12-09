@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .utils import visualize_adjacency_list, merge_adjacency_lists, extract_content_between_braces, ensure_empty_lists, delete_node_and_children, export_links, export
+from .utils import visualize_adjacency_list, merge_adjacency_lists, extract_content_between_braces, ensure_empty_lists, delete_node_and_children, export_links, export, add_node
 from .utils import generate_prompt
 from bs4 import BeautifulSoup
 from .forms import DeleteNodesForm
+from .forms import ConnectionForm
 from .models import Node
 from .forms import NodeForm, PromptGeneratorForm
 from .update_nodes import update_database_with_nodes, check_node_consistency
-
+from .utils import update_graph
 import os
 
 from .forms import AdjacencyListForm, ChildAdjacencyListForm
@@ -27,10 +28,7 @@ def home(request):
             with open(output_file, "w") as file:
                 file.write(str(ensure_empty_lists(adjacency_list)))
             # You can use this structure to further explore and expand on the idea of Indie-Futurisms
-            visualize_adjacency_list(ensure_empty_lists(adjacency_list))
-            update_database_with_nodes(output_file)
-            update_database_with_nodes(output_file)
-            check_node_consistency(output_file)
+            update_graph(adjacency_list, output_file)
 
     else:
         form = AdjacencyListForm()
@@ -148,9 +146,7 @@ def add_page(request):
 
             merged_list = ensure_empty_lists(merged_list)
             # You can use this structure to further explore and expand on the idea of Indie-Futurisms
-            visualize_adjacency_list(merged_list)
-            update_database_with_nodes(output_file)
-            check_node_consistency(output_file)
+            update_graph(merged_list, output_file)
             
         # Check if the form for deleting nodes is submitted
     
@@ -187,9 +183,8 @@ def del_page(request):
             with open(output_file, "w") as file:
                 file.write(str(ensure_empty_lists(merged_list)))
 
-            visualize_adjacency_list(merged_list)
-            update_database_with_nodes(output_file)
-            check_node_consistency(output_file)
+            update_graph(merged_list, output_file)
+
             
 
 
@@ -244,6 +239,32 @@ def prompt_generator(request):
         'generated_output': generated_output,
     })
 
-# Create your views here.
+def connection_form(request):
+    check_node_consistency(output_file)
+    if request.method == 'POST':
+        form = ConnectionForm(request.POST)
+        if form.is_valid():
+            # Process the data, for example, save it or send it somewhere
+            node = form.cleaned_data['node']
+            selected_options = form.cleaned_data.get('options', [])
+            selected_option_names = [node.name for node in selected_options]
+            
+            with open("circle_app/txtdb/adj_list.txt", 'r') as file:
+                fileread = file.read()
+            
+            parent_list = eval(fileread)
+            parent_list = add_node(parent_list, node, selected_option_names)
+            
+            update_graph(parent_list, output_file)
+            
+
+            form.save()
+    else:
+        form = ConnectionForm()
+
+    check_node_consistency(output_file)
+    return render(request, 'circle_app/connection_form.html', {'form': form})
+
+
 def circle_page(request):
     return render(request, 'circle_app/circle_page.html')

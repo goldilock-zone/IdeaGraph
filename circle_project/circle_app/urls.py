@@ -13,5 +13,5 @@ urlpatterns = [
     path('list/', views.node_list, name='node_list'),
     path('export/', views.export_page, name='export'),
     path('prompt-generator/', views.prompt_generator, name='prompt_generator'),
-
+    path('connection-form/', views.connection_form, name='connection-form')
 ]
