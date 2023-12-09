@@ -1,0 +1,7 @@
+*.sqlite
+*.sqlite3
+*.db
+
+temp.html
+output.html
+adj_list.txt
