@@ -48,7 +48,7 @@ def display_html_file(request):
 
     # Create a new button element
     new_button = soup.new_tag('button')
-    new_button.string = 'Add'  # Set the button text
+    new_button.string = 'Add Generated'  # Set the button text
     link_tag_add.append(new_button)
 
     # Create a <div> for positioning the button
@@ -113,6 +113,44 @@ def display_html_file(request):
 
     # Append the button to the <div>
     div.append(link_tag_exp)
+
+    # Append the <div> to the body of the HTML
+    soup.body.append(div)
+
+    # Prompt Generator 
+
+    # Create a new <a> tag with an href attribute (replace '/your-link-url' with the desired URL)
+    link_tag_pg = soup.new_tag('a', href="{% url 'prompt_generator' %}")
+
+    # Create a new button element
+    new_button = soup.new_tag('button')
+    new_button.string = 'Prompt Generator'  # Set the button text
+    link_tag_pg.append(new_button)
+
+    # Create a <div> for positioning the button
+    div = soup.new_tag('div', style='position: fixed; bottom: 200px; right: 10px;')
+
+    # Append the button to the <div>
+    div.append(link_tag_pg)
+
+    # Append the <div> to the body of the HTML
+    soup.body.append(div)
+
+    # Manual Add
+
+    # Create a new <a> tag with an href attribute (replace '/your-link-url' with the desired URL)
+    link_tag_ad = soup.new_tag('a', href="{% url 'connection-form' %}")
+
+    # Create a new button element
+    new_button = soup.new_tag('button')
+    new_button.string = 'Add Node Manually'  # Set the button text
+    link_tag_ad.append(new_button)
+
+    # Create a <div> for positioning the button
+    div = soup.new_tag('div', style='position: fixed; bottom: 250px; right: 10px;')
+
+    # Append the button to the <div>
+    div.append(link_tag_ad)
 
     # Append the <div> to the body of the HTML
     soup.body.append(div)
